@@ -1,6 +1,6 @@
 #version 430
 
-layout(local_size_x = 16, local_size_y = 16) in;
+layout(local_size_x = 10, local_size_y = 10) in;
 
 layout(rgba32f, binding = 0) uniform image2D outputImage;
 
@@ -70,14 +70,16 @@ vec3 traceRay(Ray ray) {
 }
 
 void main() {
-    
+
+    vec2 imageSize = vec2(640, 480);
     ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
-    vec2 xy = (vec2(pixelCoord) / vec2(imageSize(outputImage))) * 2.0 - 1.0;
+    vec2 xy = (vec2(pixelCoord) / vec2(imageSize)) * 2.0 - 1.0;
 
     Ray ray;
     ray.origin = vec3(0.0, 0.0, 0.0);
     ray.direction = normalize(vec3(xy, -1.0));
 
     vec3 color = traceRay(ray);
+
     imageStore(outputImage, pixelCoord, vec4(color, 1.0));
 }

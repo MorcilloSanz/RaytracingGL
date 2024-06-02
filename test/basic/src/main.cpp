@@ -60,31 +60,52 @@ int main(void) {
 
     // Screen Quad
     std::vector<Vertex> quadVertices = {
-        Vertex(glm::vec3(-1.0f,  1.0f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec3(-1.0f, -1.0f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec3( 1.0f, -1.0f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(1.0f, 0.0f)),
-
-        Vertex(glm::vec3(-1.0f,  1.0f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec3( 1.0f, -1.0f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(1.0f, 0.0f)),
-        Vertex(glm::vec3( 1.0f,  1.0f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(1.0f, 1.0f))
+        Vertex(glm::vec3( 1.f,  1.f, 0.0f), glm::vec4(1.0), glm::vec2(1.0f, 1.0f)), // top right
+        Vertex(glm::vec3( 1.f, -1.f, 0.0f), glm::vec4(1.0), glm::vec2(1.0f, 0.0f)), // bottom right
+        Vertex(glm::vec3(-1.f, -1.f, 0.0f), glm::vec4(1.0), glm::vec2(0.0f, 0.0f)), // bottom left
+        Vertex(glm::vec3(-1.f,  1.f, 0.0f), glm::vec4(1.0), glm::vec2(0.0f, 1.0f))  // top left 
     };
 
+    std::vector<unsigned int> quadIndices = { 0, 1, 3, 1, 2, 3 };
+
     VertexArray::Ptr vertexArray = VertexArray::New();
-    VertexBuffer::Ptr vertexBuffer = VertexBuffer::New(quadVertices);
+    VertexBuffer::Ptr vertexBuffer = VertexBuffer::New(quadVertices, quadIndices);
 
     // Scene
+    int max_compute_work_group_count[3];
+	int max_compute_work_group_size[3];
+	int max_compute_work_group_invocations;
+
+	for (int idx = 0; idx < 3; idx++) {
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, idx, &max_compute_work_group_count[idx]);
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, idx, &max_compute_work_group_size[idx]);
+	}	
+	glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max_compute_work_group_invocations);
+
+	std::cout << "OpenGL Limitations: " << std::endl;
+	std::cout << "Maximum number of work groups in X dimension " << max_compute_work_group_count[0] << std::endl;
+	std::cout << "Maximum number of work groups in Y dimension " << max_compute_work_group_count[1] << std::endl;
+	std::cout << "Maximum number of work groups in Z dimension " << max_compute_work_group_count[2] << std::endl;
+
+	std::cout << "Maximum size of a work group in X dimension " << max_compute_work_group_size[0] << std::endl;
+	std::cout << "Maximum size of a work group in Y dimension " << max_compute_work_group_size[1] << std::endl;
+	std::cout << "Maximum size of a work group in Z dimension " << max_compute_work_group_size[2] << std::endl;
+
+	std::cout << "Number of invocations in a single local work group that may be dispatched to a compute shader " << max_compute_work_group_invocations << std::endl;
+
+
     Shader computeShader = Shader::fromFile("glsl/compute.glsl", Shader::ShaderType::Compute);
     ShaderProgram::Ptr computeShaderProgram = ShaderProgram::New(computeShader);
 
     std::vector<Vertex> meshVertices = {
-        Vertex(glm::vec3(-1.0, -1.0, -1.0),  glm::vec4(0.0f, 0.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3( 1.0, -1.0, -1.0),  glm::vec4(1.0f, 0.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3(-1.0,  1.0, -1.0),  glm::vec4(0.0f, 1.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3( 1.0,  1.0, -1.0),  glm::vec4(0.0f, 1.0f, 0.5f, 1.f)),
-        Vertex(glm::vec3(-1.0, -1.0,  1.0),  glm::vec4(0.0f, 0.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3( 1.0, -1.0,  1.0),  glm::vec4(1.0f, 0.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3(-1.0,  1.0,  1.0),  glm::vec4(0.0f, 1.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3( 1.0,  1.0,  1.0),  glm::vec4(0.0f, 1.0f, 0.5f, 1.f))
+        Vertex(glm::vec3(-0.5, -0.5, -0.5),  glm::vec4(0.0f, 0.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3( 0.5, -0.5, -0.5),  glm::vec4(1.0f, 0.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3(-0.5,  0.5, -0.5),  glm::vec4(0.0f, 1.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3( 0.5,  0.5, -0.5),  glm::vec4(0.0f, 1.0f, 0.5f, 1.f)),
+        Vertex(glm::vec3(-0.5, -0.5,  0.5),  glm::vec4(0.0f, 0.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3( 0.5, -0.5,  0.5),  glm::vec4(1.0f, 0.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3(-0.5,  0.5,  0.5),  glm::vec4(0.0f, 1.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3( 0.5,  0.5,  0.5),  glm::vec4(0.0f, 1.0f, 0.5f, 1.f))
     };
 
     std::vector<unsigned int> meshIndices = {
@@ -104,7 +125,7 @@ int main(void) {
 
         // Compute program
         computeShaderProgram->useProgram();
-        glDispatchCompute((GLuint)width / 16, (GLuint)height / 16, 1);
+        glDispatchCompute((GLuint)width / 10, (GLuint)height / 10, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         // Draw
@@ -117,7 +138,7 @@ int main(void) {
         glBindTexture(GL_TEXTURE_2D, outputTexture);
         shaderProgram->uniformInt("screenTexture", outputTexture - 1);
         vertexArray->bind();
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, quadIndices.size(), GL_UNSIGNED_INT, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // Update frames
