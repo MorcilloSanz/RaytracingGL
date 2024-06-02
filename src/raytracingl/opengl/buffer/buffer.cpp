@@ -211,8 +211,8 @@ void VertexArray::unbind() {
 //////////////////////////
 
 template <typename T>
-ShaderStorageBuffer<T>::ShaderStorageBuffer(const std::vector<T>& _data) 
-    : data(_data) {
+ShaderStorageBuffer<T>::ShaderStorageBuffer(const std::vector<T>& _data, unsigned int _bindingPoint) 
+    : data(_data), bindingPoint(_bindingPoint) {
     initBuffer();
 }
 
@@ -223,13 +223,13 @@ ShaderStorageBuffer<T>::~ShaderStorageBuffer() {
 
 template <typename T>
 ShaderStorageBuffer<T>::ShaderStorageBuffer(const ShaderStorageBuffer& shaderStorageBuffer) 
-    : data(shaderStorageBuffer.data) {
+    : data(shaderStorageBuffer.data), bindingPoint(shaderStorageBuffer.bindingPoint) {
     id = shaderStorageBuffer.id;
 }
 
 template <typename T>
 ShaderStorageBuffer<T>::ShaderStorageBuffer(ShaderStorageBuffer&& shaderStorageBuffer) noexcept 
-    : data(std::move(shaderStorageBuffer.data)) {
+    : data(std::move(shaderStorageBuffer.data)), bindingPoint(shaderStorageBuffer.bindingPoint) {
     id = shaderStorageBuffer.id;
 }
 
@@ -237,6 +237,7 @@ template <typename T>
 ShaderStorageBuffer<T>& ShaderStorageBuffer<T>::operator=(const ShaderStorageBuffer& shaderStorageBuffer) {
     id = shaderStorageBuffer.id;
     data = shaderStorageBuffer.data;
+    bindingPoint = shaderStorageBuffer.bindingPoint;
     return *this;
 }
 
@@ -244,6 +245,7 @@ template <typename T>
 ShaderStorageBuffer<T>& ShaderStorageBuffer<T>::operator=(ShaderStorageBuffer&& shaderStorageBuffer) noexcept {
     id = shaderStorageBuffer.id;
     data = std::move(shaderStorageBuffer.data);
+    bindingPoint = shaderStorageBuffer.bindingPoint;
     return *this;
 }
 
@@ -252,7 +254,7 @@ void ShaderStorageBuffer<T>::initBuffer() {
     glGenBuffers(1, &id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, id);
     glBufferData(GL_SHADER_STORAGE_BUFFER, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, id);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bindingPoint, id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
