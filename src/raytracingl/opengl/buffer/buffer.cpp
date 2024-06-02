@@ -3,7 +3,9 @@
 namespace rgl
 {
 
-// IndexBuffer
+///////////////////
+//  IndexBuffer  //
+///////////////////
 
 IndexBuffer::IndexBuffer(const std::vector<unsigned int>& _indices)
     : Buffer(), indices(_indices) {
@@ -51,7 +53,9 @@ void IndexBuffer::unbind() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-// VertexBuffer
+////////////////////
+//  VertexBuffer  //
+////////////////////
 
 VertexBuffer::VertexBuffer(const std::vector<Vertex>& _vertices)
     : Buffer(), vertices(_vertices) {
@@ -158,8 +162,9 @@ void VertexBuffer::unbind() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-// Vertex Array
-
+///////////////////
+//  VertexArray  //
+///////////////////
 
 VertexArray::VertexArray() : Buffer() {
     initBuffer();
@@ -200,5 +205,69 @@ void VertexArray::bind() {
 void VertexArray::unbind() {
     glBindVertexArray(0);
 }
+
+///////////////////////////
+//  ShaderStorageBuffer  //
+//////////////////////////
+
+template <typename T>
+ShaderStorageBuffer<T>::ShaderStorageBuffer(const std::vector<T>& _data) 
+    : data(_data) {
+    initBuffer();
+}
+
+template <typename T>
+ShaderStorageBuffer<T>::~ShaderStorageBuffer() {
+    glDeleteBuffers(1, &id);
+}
+
+template <typename T>
+ShaderStorageBuffer<T>::ShaderStorageBuffer(const ShaderStorageBuffer& shaderStorageBuffer) 
+    : data(shaderStorageBuffer.data) {
+    id = shaderStorageBuffer.id;
+}
+
+template <typename T>
+ShaderStorageBuffer<T>::ShaderStorageBuffer(ShaderStorageBuffer&& shaderStorageBuffer) noexcept 
+    : data(std::move(shaderStorageBuffer.data)) {
+    id = shaderStorageBuffer.id;
+}
+
+template <typename T>
+ShaderStorageBuffer<T>& ShaderStorageBuffer<T>::operator=(const ShaderStorageBuffer& shaderStorageBuffer) {
+    id = shaderStorageBuffer.id;
+    data = shaderStorageBuffer.data;
+    return *this;
+}
+
+template <typename T>
+ShaderStorageBuffer<T>& ShaderStorageBuffer<T>::operator=(ShaderStorageBuffer&& shaderStorageBuffer) noexcept {
+    id = shaderStorageBuffer.id;
+    data = std::move(shaderStorageBuffer.data);
+    return *this;
+}
+
+template <typename T>
+void ShaderStorageBuffer<T>::initBuffer() {
+    glGenBuffers(1, &id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, id);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+template <typename T>
+void ShaderStorageBuffer<T>::bind() {
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, id);
+};
+
+template <typename T>
+void ShaderStorageBuffer<T>::unbind() {
+    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+}
+
+template class ShaderStorageBuffer<Vertex>;
+template class ShaderStorageBuffer<unsigned int>;
 
 }

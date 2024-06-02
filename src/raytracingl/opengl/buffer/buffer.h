@@ -92,4 +92,26 @@ public:
     void unbind() override;
 };
 
+
+template <typename T>
+class ShaderStorageBuffer : public Buffer {
+    GENERATE_SHARED_PTR(ShaderStorageBuffer<T>)
+private:
+    std::vector<T> data;
+public:
+    ShaderStorageBuffer(const std::vector<T>& _data);
+    ShaderStorageBuffer() = default;
+    ~ShaderStorageBuffer();
+    ShaderStorageBuffer(const ShaderStorageBuffer& shaderStorageBuffer);
+    ShaderStorageBuffer(ShaderStorageBuffer&& shaderSotrageBuffer) noexcept;
+    ShaderStorageBuffer& operator=(const ShaderStorageBuffer& shaderStorageBuffer);
+    ShaderStorageBuffer& operator=(ShaderStorageBuffer&& shaderStorageBuffer) noexcept;
+public:
+    void initBuffer() override;
+    void bind() override;
+    void unbind() override;
+public:
+    std::vector<T> getData() const { return data; }
+};
+
 }

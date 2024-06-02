@@ -55,14 +55,11 @@ int main(void) {
     Shader fragmentShader = Shader::fromFile("glsl/fragment.glsl", Shader::ShaderType::Fragment);
     ShaderProgram::Ptr shaderProgram = ShaderProgram::New(vertexShader, fragmentShader);
 
-    Shader computeShader = Shader::fromFile("glsl/compute.glsl", Shader::ShaderType::Compute);
-    ShaderProgram::Ptr computeShaderProgram = ShaderProgram::New(computeShader);
-
     int width = 640, height = 480;
     GLuint outputTexture = createOutputTexture(width, height);
 
-    // Buffers
-    std::vector<Vertex> vertices = {
+    // Screen Quad
+    std::vector<Vertex> quadVertices = {
         Vertex(glm::vec3(-1.0f,  1.0f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(0.0f, 1.0f)),
         Vertex(glm::vec3(-1.0f, -1.0f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(0.0f, 0.0f)),
         Vertex(glm::vec3( 1.0f, -1.0f, 0.f), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(1.0f, 0.0f)),
@@ -73,7 +70,34 @@ int main(void) {
     };
 
     VertexArray::Ptr vertexArray = VertexArray::New();
-    VertexBuffer::Ptr vertexBuffer = VertexBuffer::New(vertices);
+    VertexBuffer::Ptr vertexBuffer = VertexBuffer::New(quadVertices);
+
+    // Scene
+    Shader computeShader = Shader::fromFile("glsl/compute.glsl", Shader::ShaderType::Compute);
+    ShaderProgram::Ptr computeShaderProgram = ShaderProgram::New(computeShader);
+
+    std::vector<Vertex> meshVertices = {
+        Vertex(glm::vec3(-1.0, -1.0, -1.0),  glm::vec4(0.0f, 0.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3( 1.0, -1.0, -1.0),  glm::vec4(1.0f, 0.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3(-1.0,  1.0, -1.0),  glm::vec4(0.0f, 1.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3( 1.0,  1.0, -1.0),  glm::vec4(0.0f, 1.0f, 0.5f, 1.f)),
+        Vertex(glm::vec3(-1.0, -1.0,  1.0),  glm::vec4(0.0f, 0.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3( 1.0, -1.0,  1.0),  glm::vec4(1.0f, 0.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3(-1.0,  1.0,  1.0),  glm::vec4(0.0f, 1.0f, 1.0f, 1.f)),
+        Vertex(glm::vec3( 1.0,  1.0,  1.0),  glm::vec4(0.0f, 1.0f, 0.5f, 1.f))
+    };
+
+    std::vector<unsigned int> meshIndices = {
+        0, 1, 2, 2, 1, 3,
+        4, 0, 6, 6, 0, 2,
+        7, 5, 6, 6, 5, 4,
+        3, 1, 7, 7, 1, 5,
+        4, 5, 0, 0, 5, 1,
+        6, 7, 2, 2, 7, 3
+    };
+
+    ShaderStorageBuffer<Vertex>::Ptr ssboVertices = ShaderStorageBuffer<Vertex>::New(meshVertices);
+    ShaderStorageBuffer<unsigned int>::Ptr ssboIndices = ShaderStorageBuffer<unsigned int>::New(meshIndices);
     
     // Main loop
     while (!glfwWindowShouldClose(window)) {
