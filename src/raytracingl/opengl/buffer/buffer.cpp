@@ -42,7 +42,7 @@ IndexBuffer& IndexBuffer::operator=(IndexBuffer&& indexBuffer) noexcept {
 void IndexBuffer::initBuffer() {
     glGenBuffers(1, &id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_DYNAMIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 }
 
 void IndexBuffer::bind() {
@@ -147,7 +147,7 @@ void VertexBuffer::initBuffer() {
 
     glGenBuffers(1, &id);
     glBindBuffer(GL_ARRAY_BUFFER, id);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float) * MAX_VERTEX_ATTRIBUTES, glVertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float) * MAX_VERTEX_ATTRIBUTES, glVertices, GL_STATIC_DRAW);
 
     delete[] glVertices;
 
@@ -265,7 +265,6 @@ void ShaderStorageBuffer<T>::bind() {
 
 template <typename T>
 void ShaderStorageBuffer<T>::unbind() {
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 

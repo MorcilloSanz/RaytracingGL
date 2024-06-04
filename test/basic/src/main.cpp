@@ -34,7 +34,8 @@ int main(void) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(640, 480, "Basic", NULL, NULL);
+    int width = 640, height = 480;
+    window = glfwCreateWindow(width, height, "Basic", NULL, NULL);
 
     if (!window) {
         glfwTerminate();
@@ -55,7 +56,6 @@ int main(void) {
     Shader fragmentShader = Shader::fromFile("glsl/fragment.glsl", Shader::ShaderType::Fragment);
     ShaderProgram::Ptr shaderProgram = ShaderProgram::New(vertexShader, fragmentShader);
 
-    int width = 640, height = 480;
     GLuint outputTexture = createOutputTexture(width, height);
 
     // Screen Quad
@@ -125,7 +125,7 @@ int main(void) {
 
         // Compute program
         computeShaderProgram->useProgram();
-        glDispatchCompute((GLuint)width / 10, (GLuint)height / 10, 1);
+        glDispatchCompute((GLuint)width / 16, (GLuint)height / 16, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         // Draw
@@ -156,12 +156,15 @@ GLuint createOutputTexture(int width, int height) {
     GLuint texture;
     glGenTextures(1, &texture);
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+    glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
     return texture;
 }
