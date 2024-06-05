@@ -44,6 +44,8 @@ int main(void) {
 
     glfwMakeContextCurrent(window);
 
+    // Init GLEW
+    glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
         std::cout << "Couldn't initialize GLEW" << std::endl;
         return 0;
@@ -51,14 +53,11 @@ int main(void) {
 
     glfwSetKeyCallback(window, key_callback);
 
-    // Engine
+    // Screen Quad
     Shader vertexShader = Shader::fromFile("glsl/vertex.glsl", Shader::ShaderType::Vertex);
     Shader fragmentShader = Shader::fromFile("glsl/fragment.glsl", Shader::ShaderType::Fragment);
     ShaderProgram::Ptr shaderProgram = ShaderProgram::New(vertexShader, fragmentShader);
 
-    GLuint outputTexture = createOutputTexture(width, height);
-
-    // Screen Quad
     std::vector<Vertex> quadVertices = {
         Vertex(glm::vec3( 1.f,  1.f, 0.0f), glm::vec4(1.0), glm::vec2(1.0f, 1.0f)), // top right
         Vertex(glm::vec3( 1.f, -1.f, 0.0f), glm::vec4(1.0), glm::vec2(1.0f, 0.0f)), // bottom right
@@ -93,6 +92,7 @@ int main(void) {
 
 	std::cout << "Number of invocations in a single local work group that may be dispatched to a compute shader " << max_compute_work_group_invocations << std::endl;
 
+    GLuint outputTexture = createOutputTexture(width, height);
 
     Shader computeShader = Shader::fromFile("glsl/compute.glsl", Shader::ShaderType::Compute);
     ShaderProgram::Ptr computeShaderProgram = ShaderProgram::New(computeShader);
@@ -119,15 +119,15 @@ int main(void) {
 
     ShaderStorageBuffer<Vertex>::Ptr ssboVertices = ShaderStorageBuffer<Vertex>::New(meshVertices, 0);
     ShaderStorageBuffer<unsigned int>::Ptr ssboIndices = ShaderStorageBuffer<unsigned int>::New(meshIndices, 1);
-    
+
     // Main loop
     while (!glfwWindowShouldClose(window)) {
 
         // Compute program
         computeShaderProgram->useProgram();
-        glDispatchCompute((GLuint)width / 16, (GLuint)height / 16, 1);
+        glDispatchCompute((GLuint)ceil(width / 16.0), (GLuint)ceil(height / 16.0), 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
+  
         // Draw
         glClearColor(0.f, 0.f, 0.f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -158,12 +158,13 @@ GLuint createOutputTexture(int width, int height) {
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
 
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
     glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
     return texture;

@@ -36,11 +36,13 @@ void main() {
 
 void main() {
 
-    vec4 value = vec4(0.0, 0.0, 0.0, 1.0);
     ivec2 texelCoord = ivec2(gl_GlobalInvocationID.xy);
+
+    vec2 imageSize = vec2(640, 480);
+    if(texelCoord.x >= imageSize.x || texelCoord.y >= imageSize.y)
+        return;
 	
-    value.x = float(texelCoord.x)/(gl_NumWorkGroups.x);
-    value.y = float(texelCoord.y)/(gl_NumWorkGroups.y);
-	
+    vec4 value = vec4(texelCoord.x / imageSize.x, texelCoord.y / imageSize.y, 1.0, 1.0);
+
     imageStore(outputImage, texelCoord, value);
 }
