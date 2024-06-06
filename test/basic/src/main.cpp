@@ -106,27 +106,17 @@ int main(int argc, char* argv[]) {
 
     // Scene
     std::vector<Vertex> meshVertices = {
-        Vertex(glm::vec3(-1.0, -1.0, -1.0),  glm::vec4(0.0f, 0.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3( 1.0, -1.0, -1.0),  glm::vec4(1.0f, 0.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3(-1.0,  1.0, -1.0),  glm::vec4(0.0f, 1.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3( 1.0,  1.0, -1.0),  glm::vec4(0.0f, 1.0f, 0.5f, 1.f)),
-        Vertex(glm::vec3(-1.0, -1.0,  1.0),  glm::vec4(0.0f, 0.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3( 1.0, -1.0,  1.0),  glm::vec4(1.0f, 0.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3(-1.0,  1.0,  1.0),  glm::vec4(0.0f, 1.0f, 1.0f, 1.f)),
-        Vertex(glm::vec3( 1.0,  1.0,  1.0),  glm::vec4(0.0f, 1.0f, 0.5f, 1.f))
+        Vertex(glm::vec3( 0.0, -0.5, 0.5),  glm::vec3(1.0f, 0.0f, 0.0f)),
+        Vertex(glm::vec3( 0.5,  0.5, 0.5),  glm::vec3(0.0f, 1.0f, 0.0f)),
+        Vertex(glm::vec3(-0.5,  0.5, 0.5),  glm::vec3(0.0f, 0.0f, 1.0f))
     };
 
     std::vector<unsigned int> meshIndices = {
-        0, 1, 2, 2, 1, 3,
-        4, 0, 6, 6, 0, 2,
-        7, 5, 6, 6, 5, 4,
-        3, 1, 7, 7, 1, 5,
-        4, 5, 0, 0, 5, 1,
-        6, 7, 2, 2, 7, 3
+        0, 1, 2
     };
 
-    //ShaderStorageBuffer<Vertex>::Ptr ssboVertices = ShaderStorageBuffer<Vertex>::New(meshVertices);
-    //ShaderStorageBuffer<unsigned int>::Ptr ssboIndices = ShaderStorageBuffer<unsigned int>::New(meshIndices);
+    ShaderStorageBuffer<Vertex>::Ptr ssboVertices = ShaderStorageBuffer<Vertex>::New(meshVertices, 0);
+    ShaderStorageBuffer<unsigned int>::Ptr ssboIndices = ShaderStorageBuffer<unsigned int>::New(meshIndices, 1);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
