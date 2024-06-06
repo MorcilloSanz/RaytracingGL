@@ -42,7 +42,7 @@ IndexBuffer& IndexBuffer::operator=(IndexBuffer&& indexBuffer) noexcept {
 void IndexBuffer::initBuffer() {
     glGenBuffers(1, &id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_DYNAMIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 }
 
 void IndexBuffer::bind() {
@@ -104,23 +104,23 @@ void VertexBuffer::vertexAttributes() {
 
     // color attribute
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(3 * sizeof(float)));
 
     // normal attribute
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(7 * sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(6 * sizeof(float)));
 
     // texture coordinates attribute
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(10 * sizeof(float)));
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(9 * sizeof(float)));
 
     // tangent attribute
     glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(12 * sizeof(float)));
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(11 * sizeof(float)));
     
     // bitangent attribute
     glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(15 * sizeof(float)));
+    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, MAX_VERTEX_ATTRIBUTES * sizeof(float), (void*)(14 * sizeof(float)));
 }
 
 float* VertexBuffer::parseVertices() {
@@ -129,12 +129,12 @@ float* VertexBuffer::parseVertices() {
     float* glVertices = new float[vertices.size() * MAX_VERTEX_ATTRIBUTES];
 
     for(auto& vertex : vertices) {
-        glVertices[index] = vertex.pos.x;       glVertices[index + 1] = vertex.pos.y;   glVertices[index + 2] = vertex.pos.z;
-        glVertices[index + 3] = vertex.color.r; glVertices[index + 4] = vertex.color.g; glVertices[index + 5] = vertex.color.b; glVertices[index + 6] = vertex.color.a;
-        glVertices[index + 7] = vertex.normal.x;glVertices[index + 8] = vertex.normal.y;glVertices[index + 9] = vertex.normal.z;
-        glVertices[index + 10] = vertex.uvs.x;  glVertices[index + 11] = vertex.uvs.y; 
-        glVertices[index + 12] = vertex.tan.x;  glVertices[index + 13] = vertex.tan.y;  glVertices[index + 14] = vertex.tan.z;
-        glVertices[index + 15] = vertex.bitan.x;glVertices[index + 16] = vertex.bitan.y;glVertices[index + 17] = vertex.bitan.z;
+        glVertices[index] = vertex.pos.x;        glVertices[index + 1] = vertex.pos.y;    glVertices[index + 2] = vertex.pos.z;
+        glVertices[index + 3] = vertex.color.r;  glVertices[index + 4] = vertex.color.g;  glVertices[index + 5] = vertex.color.b;
+        glVertices[index + 6] = vertex.normal.x; glVertices[index + 7] = vertex.normal.y; glVertices[index + 8] = vertex.normal.z;
+        glVertices[index + 9] = vertex.uvs.x;    glVertices[index + 10] = vertex.uvs.y;  
+        glVertices[index + 11] = vertex.tan.x;   glVertices[index + 12] = vertex.tan.y;   glVertices[index + 13] = vertex.tan.z;
+        glVertices[index + 14] = vertex.bitan.x; glVertices[index + 15] = vertex.bitan.y; glVertices[index + 16] = vertex.bitan.z;
         index += MAX_VERTEX_ATTRIBUTES;
     }
 
@@ -147,7 +147,7 @@ void VertexBuffer::initBuffer() {
 
     glGenBuffers(1, &id);
     glBindBuffer(GL_ARRAY_BUFFER, id);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float) * MAX_VERTEX_ATTRIBUTES, glVertices, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float) * MAX_VERTEX_ATTRIBUTES, glVertices, GL_STATIC_DRAW);
 
     delete[] glVertices;
 
@@ -211,8 +211,8 @@ void VertexArray::unbind() {
 //////////////////////////
 
 template <typename T>
-ShaderStorageBuffer<T>::ShaderStorageBuffer(const std::vector<T>& _data) 
-    : data(_data) {
+ShaderStorageBuffer<T>::ShaderStorageBuffer(const std::vector<T>& _data, unsigned int _bindingPoint) 
+    : data(_data), bindingPoint(_bindingPoint) {
     initBuffer();
 }
 
@@ -222,28 +222,30 @@ ShaderStorageBuffer<T>::~ShaderStorageBuffer() {
 }
 
 template <typename T>
-ShaderStorageBuffer<T>::ShaderStorageBuffer(const ShaderStorageBuffer& shaderStorageBuffer) 
-    : data(shaderStorageBuffer.data) {
+ShaderStorageBuffer<T>::ShaderStorageBuffer(const ShaderStorageBuffer<T>& shaderStorageBuffer) 
+    : data(shaderStorageBuffer.data), bindingPoint(shaderStorageBuffer.bindingPoint) {
     id = shaderStorageBuffer.id;
 }
 
 template <typename T>
-ShaderStorageBuffer<T>::ShaderStorageBuffer(ShaderStorageBuffer&& shaderStorageBuffer) noexcept 
-    : data(std::move(shaderStorageBuffer.data)) {
+ShaderStorageBuffer<T>::ShaderStorageBuffer(ShaderStorageBuffer<T>&& shaderStorageBuffer) noexcept 
+    : data(std::move(shaderStorageBuffer.data)), bindingPoint(shaderStorageBuffer.bindingPoint) {
     id = shaderStorageBuffer.id;
 }
 
 template <typename T>
-ShaderStorageBuffer<T>& ShaderStorageBuffer<T>::operator=(const ShaderStorageBuffer& shaderStorageBuffer) {
+ShaderStorageBuffer<T>& ShaderStorageBuffer<T>::operator=(const ShaderStorageBuffer<T>& shaderStorageBuffer) {
     id = shaderStorageBuffer.id;
     data = shaderStorageBuffer.data;
+    bindingPoint = shaderStorageBuffer.bindingPoint;
     return *this;
 }
 
 template <typename T>
-ShaderStorageBuffer<T>& ShaderStorageBuffer<T>::operator=(ShaderStorageBuffer&& shaderStorageBuffer) noexcept {
+ShaderStorageBuffer<T>& ShaderStorageBuffer<T>::operator=(ShaderStorageBuffer<T>&& shaderStorageBuffer) noexcept {
     id = shaderStorageBuffer.id;
     data = std::move(shaderStorageBuffer.data);
+    bindingPoint = shaderStorageBuffer.bindingPoint;
     return *this;
 }
 
@@ -252,7 +254,7 @@ void ShaderStorageBuffer<T>::initBuffer() {
     glGenBuffers(1, &id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, id);
     glBufferData(GL_SHADER_STORAGE_BUFFER, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, id);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bindingPoint, id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
@@ -263,7 +265,6 @@ void ShaderStorageBuffer<T>::bind() {
 
 template <typename T>
 void ShaderStorageBuffer<T>::unbind() {
-    //glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 

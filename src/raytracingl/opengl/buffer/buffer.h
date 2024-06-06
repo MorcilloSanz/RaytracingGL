@@ -8,7 +8,7 @@
 #include "raytracingl/ptr.h"
 #include "raytracingl/geometry/vertex.h"
 
-#define MAX_VERTEX_ATTRIBUTES 18
+#define MAX_VERTEX_ATTRIBUTES 17
 
 namespace rgl
 {
@@ -98,12 +98,13 @@ class ShaderStorageBuffer : public Buffer {
     GENERATE_SHARED_PTR(ShaderStorageBuffer<T>)
 private:
     std::vector<T> data;
+    unsigned int bindingPoint;
 public:
-    ShaderStorageBuffer(const std::vector<T>& _data);
+    ShaderStorageBuffer(const std::vector<T>& _data, unsigned int _bindingPoint);
     ShaderStorageBuffer() = default;
     ~ShaderStorageBuffer();
     ShaderStorageBuffer(const ShaderStorageBuffer& shaderStorageBuffer);
-    ShaderStorageBuffer(ShaderStorageBuffer&& shaderSotrageBuffer) noexcept;
+    ShaderStorageBuffer(ShaderStorageBuffer&& shaderStorageBuffer) noexcept;
     ShaderStorageBuffer& operator=(const ShaderStorageBuffer& shaderStorageBuffer);
     ShaderStorageBuffer& operator=(ShaderStorageBuffer&& shaderStorageBuffer) noexcept;
 public:
@@ -112,6 +113,7 @@ public:
     void unbind() override;
 public:
     std::vector<T> getData() const { return data; }
+    unsigned int getBindingPoint() const { return bindingPoint; }
 };
 
 }

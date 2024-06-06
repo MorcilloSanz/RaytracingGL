@@ -14,25 +14,25 @@ namespace rgl
 struct Vertex {
 
     glm::vec3 pos;
-    glm::vec4 color;
+    glm::vec3 color;
     glm::vec2 uvs;
     glm::vec3 normal;
     glm::vec3 tan, bitan;
 
-    Vertex(const glm::vec3& _pos, const glm::vec4& _color, const glm::vec2& _uvs, const glm::vec3& _normal)
-        : pos(_pos), color(_color), uvs(_uvs), normal(_normal), tan(1.f), bitan(1.f) {
+    Vertex(const glm::vec3& _pos, const glm::vec3& _color, const glm::vec3& _normal, const glm::vec2& _uvs)
+        : pos(_pos), color(_color), normal(_normal), uvs(_uvs), tan(1.f), bitan(1.f) {
     }
 
-    Vertex(const glm::vec3& _pos, const glm::vec4& _color, const glm::vec2& _uvs)
-        : pos(_pos), color(_color), uvs(_uvs), normal(1.f), tan(1.f), bitan(1.f) {
+    Vertex(const glm::vec3& _pos, const glm::vec3& _color, const glm::vec3& _normal)
+        : pos(_pos), color(_color), normal(_normal), uvs(1.0), tan(1.f), bitan(1.f) {
     }
 
-    Vertex(const glm::vec3& _pos, const glm::vec4& _color)
-        : pos(_pos), color(_color), uvs(1.f), normal(1.f), tan(1.f), bitan(1.f) {
+    Vertex(const glm::vec3& _pos, const glm::vec3& _color)
+        : pos(_pos), color(_color), normal(1.f), uvs(1.f), tan(1.f), bitan(1.f) {
     }
 
     Vertex(const glm::vec3& _pos)
-        : pos(_pos), color(1.f), uvs(1.f), normal(1.f), tan(1.f), bitan(1.f) {
+        : pos(_pos), color(1.f), normal(1.f), uvs(1.f), tan(1.f), bitan(1.f) {
     }
 
     Vertex() = default;

@@ -45,7 +45,7 @@ public:
         return Shader(code, shaderType);
     }
 
-    inline void deleteShader() { glDeleteShader(shaderID); }
+    void deleteShader() { glDeleteShader(shaderID); }
 public:
     std::string& getCode() { return code; }
     unsigned int getShaderID() const { return shaderID; }
@@ -75,11 +75,11 @@ public:
     void uniformVec3(const std::string& uniform, const glm::vec3& vec);
     void uniformMat4(const std::string& uniform, const glm::mat4& mat);
 public:
-    inline void useProgram() { glUseProgram(shaderProgramID); }
-    inline unsigned int getShaderProgramID() const { return shaderProgramID; }
+    void useProgram() { glUseProgram(shaderProgramID); }
+    unsigned int getShaderProgramID() const { return shaderProgramID; }
     
-    inline Shader& getVertexShader() { return vertexShader; }
-    inline Shader& getFragmentShader() { return fragmentShader; }
+    Shader& getVertexShader() { return vertexShader; }
+    Shader& getFragmentShader() { return fragmentShader; }
 };
 
 }
