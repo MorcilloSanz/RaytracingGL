@@ -8,7 +8,7 @@
 #include "raytracingl/ptr.h"
 #include "raytracingl/geometry/vertex.h"
 
-#define MAX_VERTEX_ATTRIBUTES 18
+#define MAX_VERTEX_ATTRIBUTES 17
 
 namespace rgl
 {
@@ -104,7 +104,7 @@ public:
     ShaderStorageBuffer() = default;
     ~ShaderStorageBuffer();
     ShaderStorageBuffer(const ShaderStorageBuffer& shaderStorageBuffer);
-    ShaderStorageBuffer(ShaderStorageBuffer&& shaderSotrageBuffer) noexcept;
+    ShaderStorageBuffer(ShaderStorageBuffer&& shaderStorageBuffer) noexcept;
     ShaderStorageBuffer& operator=(const ShaderStorageBuffer& shaderStorageBuffer);
     ShaderStorageBuffer& operator=(ShaderStorageBuffer&& shaderStorageBuffer) noexcept;
 public:
