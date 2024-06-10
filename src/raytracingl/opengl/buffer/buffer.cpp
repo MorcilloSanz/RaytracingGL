@@ -132,7 +132,7 @@ float* VertexBuffer::parseVertices() {
         glVertices[index] = vertex.pos.x;        glVertices[index + 1] = vertex.pos.y;    glVertices[index + 2] = vertex.pos.z;
         glVertices[index + 3] = vertex.color.r;  glVertices[index + 4] = vertex.color.g;  glVertices[index + 5] = vertex.color.b;
         glVertices[index + 6] = vertex.normal.x; glVertices[index + 7] = vertex.normal.y; glVertices[index + 8] = vertex.normal.z;
-        glVertices[index + 9] = vertex.uvs.x;    glVertices[index + 10] = vertex.uvs.y;  
+        glVertices[index + 9] = vertex.uv.x;     glVertices[index + 10] = vertex.uv.y;  
         glVertices[index + 11] = vertex.tan.x;   glVertices[index + 12] = vertex.tan.y;   glVertices[index + 13] = vertex.tan.z;
         glVertices[index + 14] = vertex.bitan.x; glVertices[index + 15] = vertex.bitan.y; glVertices[index + 16] = vertex.bitan.z;
         index += MAX_VERTEX_ATTRIBUTES;
