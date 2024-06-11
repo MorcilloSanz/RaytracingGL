@@ -118,6 +118,9 @@ int main(int argc, char* argv[]) {
 	ShaderStorageBuffer<Vertex>::Ptr ssboVertices = ShaderStorageBuffer<Vertex>::New(meshVertices, 0);
 	ShaderStorageBuffer<unsigned int>::Ptr ssboIndices = ShaderStorageBuffer<unsigned int>::New(meshIndices, 1);
 
+	computeShaderProgram->useProgram();
+	computeShaderProgram->uniformInt("numIndices", meshIndices.size());
+
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
 
