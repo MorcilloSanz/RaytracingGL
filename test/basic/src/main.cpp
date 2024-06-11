@@ -106,9 +106,9 @@ int main(int argc, char* argv[]) {
 
 	// Scene
 	std::vector<Vertex> meshVertices = {
-		Vertex(glm::vec3( 0.0, -0.5, 0.5),  glm::vec3(1.0f, 0.0f, 0.0f)),
-		Vertex(glm::vec3( 0.5,  0.5, 0.5),  glm::vec3(0.0f, 1.0f, 0.0f)),
-		Vertex(glm::vec3(-0.5,  0.5, 0.5),  glm::vec3(0.0f, 0.0f, 1.0f))
+		Vertex(glm::vec3( 0.0, -0.5, -2.5),  glm::vec3(1.0f, 0.0f, 0.0f)),
+		Vertex(glm::vec3( 0.5,  0.5, -2.5),  glm::vec3(0.0f, 1.0f, 0.0f)),
+		Vertex(glm::vec3(-0.5,  0.5, -2.5),  glm::vec3(0.0f, 0.0f, 1.0f))
 	};
 
 	std::vector<unsigned int> meshIndices = {

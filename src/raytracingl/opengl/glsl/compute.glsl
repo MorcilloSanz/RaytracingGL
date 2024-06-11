@@ -148,7 +148,6 @@ void main() {
 
 	vec3 color = vec3(0.0);
 
-    /*
     for(int i = 0; i < numIndices; i += 3) {
 
         Triangle triangle;
@@ -157,9 +156,8 @@ void main() {
         triangle.v3 = vertices[indices[i + 2]].pos;
 
         HitInfo hitInfo = intersectionTriangle(ray, triangle);
-        if(hitInfo.hit) color = vec3(1.0);
+        if(hitInfo.hit) color = vec3(1.0, 0.0, 0.0);
     }
-    */
 
     Sphere sphere;
     sphere.origin = vec3(0.0, 0.0, -2.0);
