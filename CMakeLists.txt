@@ -32,7 +32,7 @@ endif()
 project(RaytracingGL
         VERSION 0.1
         DESCRIPTION "Raytracing in OpenGL"
-        HOMEPAGE_URL "https://github.com/MorcilloSanz/PBR"
+        HOMEPAGE_URL "https://github.com/MorcilloSanz/RaytracingGL"
         LANGUAGES CXX)
 
 message(STATUS "\n${PROJECT_NAME} ${RaytracingGL_VERSION}")
