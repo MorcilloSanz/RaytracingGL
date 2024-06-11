@@ -53,10 +53,10 @@ int main(int argc, char* argv[]) {
 
 	// GLEW
 	glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        std::cout << "Couldn't initialize GLEW" << std::endl;
-        return 0;
-    }
+	if (glewInit() != GLEW_OK) {
+		std::cout << "Couldn't initialize GLEW" << std::endl;
+		return 0;
+	}
 
 	// Query limitations
 	int max_compute_work_group_count[3];
@@ -80,49 +80,52 @@ int main(int argc, char* argv[]) {
 
 	std::cout << "Number of invocations in a single local work group that may be dispatched to a compute shader " << max_compute_work_group_invocations << std::endl;
 
-    // Shaders
-    Shader vertexShader = Shader::fromFile("glsl/vertex.glsl", Shader::ShaderType::Vertex);
-    Shader fragmentShader = Shader::fromFile("glsl/fragment.glsl", Shader::ShaderType::Fragment);
-    ShaderProgram::Ptr shaderProgram = ShaderProgram::New(vertexShader, fragmentShader);
+	// Shaders
+	Shader vertexShader = Shader::fromFile("glsl/vertex.glsl", Shader::ShaderType::Vertex);
+	Shader fragmentShader = Shader::fromFile("glsl/fragment.glsl", Shader::ShaderType::Fragment);
+	ShaderProgram::Ptr shaderProgram = ShaderProgram::New(vertexShader, fragmentShader);
 
-    Shader computeShader = Shader::fromFile("glsl/compute.glsl", Shader::ShaderType::Compute);
-    ShaderProgram::Ptr computeShaderProgram = ShaderProgram::New(computeShader);
+	Shader computeShader = Shader::fromFile("glsl/compute.glsl", Shader::ShaderType::Compute);
+	ShaderProgram::Ptr computeShaderProgram = ShaderProgram::New(computeShader);
 
 	unsigned int texture = createOutputTexture(TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
-    shaderProgram->useProgram();
-    shaderProgram->uniformInt("tex", texture - 1);
+	shaderProgram->useProgram();
+	shaderProgram->uniformInt("tex", texture - 1);
 
-    // Screen quad
-    std::vector<Vertex> quadVertices = {
-        Vertex(glm::vec3(-1.0f,  1.0f, 0.0f), glm::vec3(1.0), glm::vec3(0.0), glm::vec2(0.0f, 1.0f)),
-        Vertex(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(1.0), glm::vec3(0.0), glm::vec2(0.0f, 0.0f)),
-        Vertex(glm::vec3( 1.0f,  1.0f, 0.0f), glm::vec3(1.0), glm::vec3(0.0), glm::vec2(1.0f, 1.0f)),
-        Vertex(glm::vec3( 1.0f, -1.0f, 0.0f), glm::vec3(1.0), glm::vec3(0.0), glm::vec2(1.0f, 0.0f))
-    };
+	// Screen quad
+	std::vector<Vertex> quadVertices = {
+		Vertex(glm::vec3(-1.0f,  1.0f, 0.0f), glm::vec3(1.0), glm::vec3(0.0), glm::vec2(0.0f, 1.0f)),
+		Vertex(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(1.0), glm::vec3(0.0), glm::vec2(0.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0f,  1.0f, 0.0f), glm::vec3(1.0), glm::vec3(0.0), glm::vec2(1.0f, 1.0f)),
+		Vertex(glm::vec3( 1.0f, -1.0f, 0.0f), glm::vec3(1.0), glm::vec3(0.0), glm::vec2(1.0f, 0.0f))
+	};
 
-    VertexArray::Ptr vertexArray = VertexArray::New();
-    VertexBuffer::Ptr vertexBuffer = VertexBuffer::New(quadVertices);
+	VertexArray::Ptr vertexArray = VertexArray::New();
+	VertexBuffer::Ptr vertexBuffer = VertexBuffer::New(quadVertices);
 
-    // Scene
-    std::vector<Vertex> meshVertices = {
-        Vertex(glm::vec3( 0.0, -0.5, 0.5),  glm::vec3(1.0f, 0.0f, 0.0f)),
-        Vertex(glm::vec3( 0.5,  0.5, 0.5),  glm::vec3(0.0f, 1.0f, 0.0f)),
-        Vertex(glm::vec3(-0.5,  0.5, 0.5),  glm::vec3(0.0f, 0.0f, 1.0f))
-    };
+	// Scene
+	std::vector<Vertex> meshVertices = {
+		Vertex(glm::vec3( 0.0, -0.5, 0.5),  glm::vec3(1.0f, 0.0f, 0.0f)),
+		Vertex(glm::vec3( 0.5,  0.5, 0.5),  glm::vec3(0.0f, 1.0f, 0.0f)),
+		Vertex(glm::vec3(-0.5,  0.5, 0.5),  glm::vec3(0.0f, 0.0f, 1.0f))
+	};
 
-    std::vector<unsigned int> meshIndices = {
-        0, 1, 2
-    };
+	std::vector<unsigned int> meshIndices = {
+		0, 1, 2
+	};
 
-    ShaderStorageBuffer<Vertex>::Ptr ssboVertices = ShaderStorageBuffer<Vertex>::New(meshVertices, 0);
-    ShaderStorageBuffer<unsigned int>::Ptr ssboIndices = ShaderStorageBuffer<unsigned int>::New(meshIndices, 1);
+	ShaderStorageBuffer<Vertex>::Ptr ssboVertices = ShaderStorageBuffer<Vertex>::New(meshVertices, 0);
+	ShaderStorageBuffer<unsigned int>::Ptr ssboIndices = ShaderStorageBuffer<unsigned int>::New(meshIndices, 1);
+
+	computeShaderProgram->useProgram();
+	computeShaderProgram->uniformInt("numIndices", meshIndices.size());
 
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
 
 		// Set frame time.
-        static int fCounter = 0;
+		static int fCounter = 0;
 		float currentFrame = glfwGetTime();
 
 		deltaTime = currentFrame - lastFrame;
@@ -132,22 +135,22 @@ int main(int argc, char* argv[]) {
 			std::cout << "FPS: " << 1 / deltaTime << std::endl;
 			fCounter = 0;
 		} else 
-            fCounter++;
+			fCounter++;
 
-        // Compute Shader
-        computeShaderProgram->useProgram();
-        computeShaderProgram->uniformFloat("t", currentFrame);
+		// Compute Shader
+		computeShaderProgram->useProgram();
+		computeShaderProgram->uniformFloat("t", currentFrame);
 		glDispatchCompute((unsigned int)TEXTURE_WIDTH/10, (unsigned int)TEXTURE_HEIGHT/10, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 		// render image to quad
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        shaderProgram->useProgram();
-		
-        vertexArray->bind();
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        vertexArray->unbind();
-        
+		shaderProgram->useProgram();
+
+		vertexArray->bind();
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		vertexArray->unbind();
+
 		// Swap buffers and poll events
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -161,21 +164,21 @@ int main(int argc, char* argv[]) {
 
 GLuint createOutputTexture(int width, int height) {
 
-    GLuint texture;
-    glGenTextures(1, &texture);
+	GLuint texture;
+	glGenTextures(1, &texture);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
-    glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
-    return texture;
+	return texture;
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
