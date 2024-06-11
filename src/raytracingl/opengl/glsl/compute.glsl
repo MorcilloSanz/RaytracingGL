@@ -138,15 +138,15 @@ HitInfo intersectionSphere(Ray ray, Sphere sphere) {
 
 void main() {
 
-	vec2 imageSize = vec2(1000, 1000);
-	ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
-	vec2 xy = 2.0 * pixelCoord / imageSize - 1.0;
+    vec2 imageSize = vec2(1000, 1000);
+    ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
+    vec2 xy = 2.0 * pixelCoord / imageSize - 1.0;
 
     Ray ray;
     ray.origin = vec3(xy.x, xy.y, 0.0);
     ray.direction = vec3(0.0, 0.0, -1.0);
 
-	vec3 color = vec3(0.0);
+    vec3 color = vec3(0.0);
 
     for(int i = 0; i < numIndices; i += 3) {
 
