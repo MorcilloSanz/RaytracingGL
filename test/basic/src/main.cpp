@@ -16,7 +16,13 @@
 #include <raytracingl/opengl/shader/shader.h>
 #include <raytracingl/opengl/buffer/buffer.h>
 
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <raytracingl/vendor/tiny_gltf.h>
+
 using namespace rgl;
+using namespace tinygltf;
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -103,6 +109,92 @@ int main(int argc, char* argv[]) {
 
 	VertexArray::Ptr vertexArray = VertexArray::New();
 	VertexBuffer::Ptr vertexBuffer = VertexBuffer::New(quadVertices);
+
+	// GLTF Scene
+	Model model;
+	TinyGLTF loader;
+	std::string err, warn;
+
+	bool ret = loader.LoadASCIIFromFile(&model, &err, &warn, "/home/morcillosanz/Documents/GitHub/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf");
+
+	Mesh mesh = model.meshes[0]; // Do this for each mesh
+
+	for (const auto &primitive : mesh.primitives) {
+
+		// Access indices
+		if (primitive.indices > -1) {
+			const tinygltf::Accessor &indexAccessor = model.accessors[primitive.indices];
+			const tinygltf::BufferView &bufferView = model.bufferViews[indexAccessor.bufferView];
+			const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
+			
+			const void *dataPtr = &buffer.data[bufferView.byteOffset + indexAccessor.byteOffset];
+			const unsigned short *indices = static_cast<const unsigned short*>(dataPtr);
+
+			for (size_t i = 0; i < indexAccessor.count; ++i) {
+				std::cout << "Index[" << i << "]: " << indices[i] << std::endl;
+			}
+		}
+
+		// Access vertices
+		for (const auto &attrib : primitive.attributes) {
+
+			const tinygltf::Accessor &accessor = model.accessors[attrib.second];
+			const tinygltf::BufferView &bufferView = model.bufferViews[accessor.bufferView];
+			const tinygltf::Buffer &buffer = model.buffers[bufferView.buffer];
+			
+			const void *dataPtr = &buffer.data[bufferView.byteOffset + accessor.byteOffset];
+
+			if (attrib.first == "POSITION") {
+				const float *positions = static_cast<const float*>(dataPtr);
+				std::cout << "Positions:" << std::endl;
+				for (size_t i = 0; i < accessor.count; ++i) {
+					std::cout << "Vertex[" << i << "]: ("
+								<< positions[3 * i + 0] << ", "
+								<< positions[3 * i + 1] << ", "
+								<< positions[3 * i + 2] << ")" << std::endl;
+				}
+			} else if (attrib.first == "NORMAL") {
+				const float *normals = static_cast<const float*>(dataPtr);
+				std::cout << "Normals:" << std::endl;
+				for (size_t i = 0; i < accessor.count; ++i) {
+					std::cout << "Normal[" << i << "]: ("
+								<< normals[3 * i + 0] << ", "
+								<< normals[3 * i + 1] << ", "
+								<< normals[3 * i + 2] << ")" << std::endl;
+				}
+			} else if (attrib.first == "TEXCOORD_0") {
+				const float *uvs = static_cast<const float*>(dataPtr);
+				std::cout << "UVs:" << std::endl;
+				for (size_t i = 0; i < accessor.count; ++i) {
+					std::cout << "UV[" << i << "]: ("
+								<< uvs[2 * i + 0] << ", "
+								<< uvs[2 * i + 1] << ")" << std::endl;
+				}
+			} else if (attrib.first == "TANGENT") {
+				const float *tangents = static_cast<const float*>(dataPtr);
+				std::cout << "Tangents:" << std::endl;
+				for (size_t i = 0; i < accessor.count; ++i) {
+					std::cout << "Tangent[" << i << "]: ("
+								<< tangents[4 * i + 0] << ", "
+								<< tangents[4 * i + 1] << ", "
+								<< tangents[4 * i + 2] << ", "
+								<< tangents[4 * i + 3] << ")" << std::endl;
+				}
+			}
+		}
+
+		// Access textures
+		if (primitive.material > -1) {
+			const tinygltf::Material &material = model.materials[primitive.material];
+
+			if (material.values.find("baseColorTexture") != material.values.end()) {
+				const tinygltf::Texture &texture = model.textures[material.values.at("baseColorTexture").TextureIndex()];
+				const tinygltf::Image &image = model.images[texture.source];
+
+				std::cout << "Texture: " << image.uri << std::endl;
+			}
+		}
+	}
 
 	// Scene
 	std::vector<Vertex> meshVertices = {

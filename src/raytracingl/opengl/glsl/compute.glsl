@@ -100,6 +100,7 @@ HitInfo intersectionTriangle(Ray ray, Triangle triangle) {
     float t = inv_det * dot(edge2, s_cross_e1);
     if (t > epsilon) {
         hitInfo.intersection = vec3(ray.origin + ray.direction * t);
+        hitInfo.dist = t;
         hitInfo.hit = true;
     }
 
@@ -125,7 +126,7 @@ HitInfo intersectionSphere(Ray ray, Sphere sphere) {
         
         if (lambda > 0.0) {
             hitInfo.intersection = ray.origin + lambda * ray.direction;
-            hitInfo.normal = normalize(hitInfo.intersection - sphere.origin);
+            hitInfo.normal = normalize(sphere.origin - hitInfo.intersection);
             hitInfo.dist = lambda;
             hitInfo.hit = true;
             return hitInfo;
@@ -164,7 +165,7 @@ void main() {
     sphere.radius = 0.25;
 
     HitInfo hitInfo = intersectionSphere(ray, sphere);
-    if(hitInfo.hit) color = vec3(1.0);
+    if(hitInfo.hit) color = vec3(1.0) * dot(ray.direction, hitInfo.normal);
 
     imageStore(imgOutput, pixelCoord, vec4(color, 1.0));
 }

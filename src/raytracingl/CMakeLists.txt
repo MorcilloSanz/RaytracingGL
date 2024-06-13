@@ -27,6 +27,10 @@ project(RaytracingGL)
 # Header Files
 set(HEADERS 
     ptr.h
+    vendor/json.hpp
+    vendor/stb_image_write.h
+    vendor/stb_image.h
+    vendor/tiny_gltf.h
     geometry/vertex.h
     opengl/buffer/buffer.h
     opengl/shader/shader.h
@@ -34,6 +38,7 @@ set(HEADERS
 
 # CPP files
 set(SOURCES
+    vendor/tiny_gltf.cc
     opengl/buffer/buffer.cpp
     opengl/shader/shader.cpp
     renderer/renderer.cpp
