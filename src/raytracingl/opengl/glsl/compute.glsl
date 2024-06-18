@@ -40,7 +40,9 @@ layout(std430, binding = 1) buffer IndexBuffer {
 };
 
 layout (location = 0) uniform float t;
-layout (location = 1) uniform int numIndices;
+layout (location = 1) uniform int numVertices;
+layout (location = 2) uniform int numIndices;
+layout (location = 3) uniform mat4 modelMatrix;
 
 // ----------------------------------------------------------------------------
 //
@@ -137,6 +139,20 @@ HitInfo intersectionSphere(Ray ray, Sphere sphere) {
     return hitInfo;
 }
 
+vec3 barycentric(vec3 p, Triangle triangle) {
+
+    float denom = (triangle.v2.y - triangle.v3.y) * (triangle.v1.x - triangle.v3.x) + (triangle.v3.x - triangle.v2.x) * (triangle.v1.y - triangle.v3.y);
+    float alpha = (triangle.v2.y - triangle.v3.y) * (p.x - triangle.v3.x) + (triangle.v3.x - triangle.v2.x) * (p.y - triangle.v3.y);
+    float beta = (triangle.v3.y - triangle.v1.y) * (p.x - triangle.v3.x) + (triangle.v1.x - triangle.v3.x) * (p.y - triangle.v3.y);
+    
+    alpha /= denom;
+    beta /= denom;
+
+    float gamma = 1.0 - alpha - beta;
+
+    return vec3(alpha, beta, gamma);
+}
+
 void main() {
 
     vec2 imageSize = vec2(1000, 1000);
@@ -147,25 +163,40 @@ void main() {
     ray.origin = vec3(xy.x, xy.y, 0.0);
     ray.direction = vec3(0.0, 0.0, -1.0);
 
+    HitInfo hitInfo;
     vec3 color = vec3(0.0);
 
+    // Check intersection with mesh
     for(int i = 0; i < numIndices; i += 3) {
 
         Triangle triangle;
-        triangle.v1 = vertices[indices[i]].pos;
-        triangle.v2 = vertices[indices[i + 1]].pos;
-        triangle.v3 = vertices[indices[i + 2]].pos;
+        triangle.v1 = (modelMatrix * vec4(vertices[indices[i]].pos, 1.0)).xyz;
+        triangle.v2 = (modelMatrix * vec4(vertices[indices[i + 1]].pos, 1.0)).xyz;
+        triangle.v3 = (modelMatrix * vec4(vertices[indices[i + 2]].pos, 1.0)).xyz;
 
-        HitInfo hitInfo = intersectionTriangle(ray, triangle);
-        if(hitInfo.hit) color = vec3(1.0, 0.0, 0.0);
+        vec3 c1 = vertices[indices[i]].color;
+        vec3 c2 = vertices[indices[i + 1]].color;
+        vec3 c3 = vertices[indices[i + 2]].color;
+
+        hitInfo = intersectionTriangle(ray, triangle);
+        vec3 barycentricCoords = barycentric(hitInfo.intersection, triangle);
+
+        // Color interpolation -> same with textures
+        vec3 colorInterpolation = barycentricCoords.x * c1 + barycentricCoords.y * c2 + barycentricCoords.z * c3;
+
+        if(hitInfo.hit) {
+            color = colorInterpolation;
+        }
     }
 
+    // Check intersection with sphere
     Sphere sphere;
-    sphere.origin = vec3(0.0, 0.0, -2.0);
+    sphere.origin = vec3(0.0, sin(t) / 2.0, -2.0);
     sphere.radius = 0.25;
 
-    HitInfo hitInfo = intersectionSphere(ray, sphere);
+    hitInfo = intersectionSphere(ray, sphere);
     if(hitInfo.hit) color = vec3(1.0) * dot(ray.direction, hitInfo.normal);
 
+    // Write pixel
     imageStore(imgOutput, pixelCoord, vec4(color, 1.0));
 }
