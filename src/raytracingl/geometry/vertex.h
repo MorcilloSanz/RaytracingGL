@@ -82,6 +82,15 @@ struct alignas(16) Vertex {
         bitan = std::move(vertex.bitan);
         return *this;
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const Vertex& vertex) {
+        os << "Vertex = [";
+        os << "(" << vertex.pos.x << "," << vertex.pos.y << "," << vertex.pos.z << "),";
+        os << "(" << vertex.color.r << "," << vertex.color.g << "," << vertex.color.b << "),";
+        os << "(" << vertex.uv.x << "," << vertex.uv.y << "),";
+        os << "(" << vertex.normal.x << "," << vertex.normal.y << "," << vertex.normal.z << ")]";
+        return os;
+    }
 };
 
 }
