@@ -103,6 +103,7 @@ HitInfo intersectionTriangle(Ray ray, Triangle triangle) {
     if (t > epsilon) {
         hitInfo.intersection = vec3(ray.origin + ray.direction * t);
         hitInfo.dist = t;
+        hitInfo.normal = normalize(cross(edge2, edge1));
         hitInfo.hit = true;
     }
 
@@ -233,11 +234,12 @@ void main() {
             vec3 bitan3 = vertices[indices[i + 2]].bitan;
             vec3 bitanInterpolation = barycentricCoords.x * bitan1 + barycentricCoords.y * bitan2 + barycentricCoords.z * bitan3;
 
-            if(currentHitInfo.hit) {
-                color = colorInterpolation;
-            }
-
+            // Update hitInfo
+            //currentHitInfo.normal = normalInterpolation; // If the vertices have normals
             hitInfo = currentHitInfo;
+
+            // Update color
+            color = colorInterpolation * dot(hitInfo.normal, ray.direction);
         }
     }
 

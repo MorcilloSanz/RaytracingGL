@@ -35,19 +35,19 @@ struct alignas(16) Vertex {
 
 
     Vertex(const glm::vec3& _pos, const glm::vec3& _color, const glm::vec3& _normal, const glm::vec2& _uv)
-        : pos(_pos), color(_color), normal(_normal), uv(_uv), tan(1.f), bitan(1.f) {
+        : pos(_pos), color(_color), normal(_normal), uv(_uv), tan(0.f), bitan(0.f) {
     }
 
     Vertex(const glm::vec3& _pos, const glm::vec3& _color, const glm::vec3& _normal)
-        : pos(_pos), color(_color), normal(_normal), uv(1.0), tan(1.f), bitan(1.f) {
+        : pos(_pos), color(_color), normal(_normal), uv(0.f), tan(0.f), bitan(0.f) {
     }
 
     Vertex(const glm::vec3& _pos, const glm::vec3& _color)
-        : pos(_pos), color(_color), normal(1.f), uv(1.f), tan(1.f), bitan(1.f) {
+        : pos(_pos), color(_color), normal(0.f), uv(0.f), tan(0.f), bitan(0.f) {
     }
 
     Vertex(const glm::vec3& _pos)
-        : pos(_pos), color(1.f), normal(1.f), uv(1.f), tan(1.f), bitan(1.f) {
+        : pos(_pos), color(0.f), normal(0.f), uv(0.f), tan(0.f), bitan(0.f) {
     }
 
     Vertex() = default;

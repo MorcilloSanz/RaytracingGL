@@ -176,9 +176,13 @@ int main(int argc, char* argv[]) {
 		} else 
 			fCounter++;
 
+		// Update model matrix rotation
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(0.5f), glm::vec3(1.f, 1.f, 0.f));
+
 		// Compute Shader
 		computeShaderProgram->useProgram();
 		computeShaderProgram->uniformFloat("t", currentFrame);
+		computeShaderProgram->uniformMat4("modelMatrix", modelMatrix);
 		glDispatchCompute((unsigned int)TEXTURE_WIDTH / 10, (unsigned int)TEXTURE_HEIGHT / 10, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
