@@ -209,6 +209,30 @@ void main() {
             vec3 c3 = vertices[indices[i + 2]].color;
             vec3 colorInterpolation = barycentricCoords.x * c1 + barycentricCoords.y * c2 + barycentricCoords.z * c3;
 
+            // Normal interpolation
+            vec3 normal1 = vertices[indices[i]].normal;
+            vec3 normal2 = vertices[indices[i + 1]].normal;
+            vec3 normal3 = vertices[indices[i + 2]].normal;
+            vec3 normalInterpolation = barycentricCoords.x * normal1 + barycentricCoords.y * normal2 + barycentricCoords.z * normal3;
+
+            // UVs interpolation
+            vec2 uv1 = vertices[indices[i]].uv;
+            vec2 uv2 = vertices[indices[i + 1]].uv;
+            vec2 uv3 = vertices[indices[i + 2]].uv;
+            vec2 uvInterpolation = barycentricCoords.x * uv1 + barycentricCoords.y * uv2 + barycentricCoords.z * uv3;
+
+            // Tan interpolation
+            vec3 tan1 = vertices[indices[i]].tan;
+            vec3 tan2 = vertices[indices[i + 1]].tan;
+            vec3 tan3 = vertices[indices[i + 2]].tan;
+            vec3 tanInterpolation = barycentricCoords.x * tan1 + barycentricCoords.y * tan2 + barycentricCoords.z * tan3;
+
+            // Bitan interpolation
+            vec3 bitan1 = vertices[indices[i]].bitan;
+            vec3 bitan2 = vertices[indices[i + 1]].bitan;
+            vec3 bitan3 = vertices[indices[i + 2]].bitan;
+            vec3 bitanInterpolation = barycentricCoords.x * bitan1 + barycentricCoords.y * bitan2 + barycentricCoords.z * bitan3;
+
             if(currentHitInfo.hit) {
                 color = colorInterpolation;
             }

@@ -135,8 +135,8 @@ int main(int argc, char* argv[]) {
 	};
 
 	glm::mat4 modelMatrix(1.f);
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(45.f), glm::vec3(1.f, 1.f, 0.f));
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.25f));
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(60.f), glm::vec3(1.f, 1.f, 0.f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.35f));
 	
 	/*
 	std::vector<Vertex> meshVertices;
@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
 		// Compute Shader
 		computeShaderProgram->useProgram();
 		computeShaderProgram->uniformFloat("t", currentFrame);
-		glDispatchCompute((unsigned int)TEXTURE_WIDTH/10, (unsigned int)TEXTURE_HEIGHT/10, 1);
+		glDispatchCompute((unsigned int)TEXTURE_WIDTH / 10, (unsigned int)TEXTURE_HEIGHT / 10, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 		// render image to quad
