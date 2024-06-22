@@ -155,15 +155,38 @@ vec3 barycentric(vec3 p, Triangle triangle) {
 
 void main() {
 
-    vec2 imageSize = vec2(1000, 1000);
+    // Definición de la cámara
+    vec3 cameraPos = vec3(0.0, 0.0, 2.0); // Posición de la cámara
+    vec3 cameraTarget = vec3(0.0, 0.0, 0.0); // Punto donde la cámara está mirando
+    vec3 cameraUp = vec3(0.0, 1.0, 0.0); // Vector hacia arriba
+
+    // Calcular los vectores de la cámara
+    vec3 forward = normalize(cameraTarget - cameraPos);
+    vec3 right = normalize(cross(forward, cameraUp));
+    vec3 up = cross(right, forward);
+
+    vec2 imageSize = vec2(500, 500);
     ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
     vec2 xy = 2.0 * pixelCoord / imageSize - 1.0;
 
+    // Convertir las coordenadas del píxel a coordenadas normalizadas (-1 a 1)
+    vec2 ndc = (vec2(pixelCoord) / imageSize) * 2.0 - 1.0;
+
+    // Campo de visión (FOV) y aspecto ratio
+    float fov = radians(45.0); // Campo de visión en radianes
+    float aspectRatio = imageSize.x / imageSize.y;
+
+    // Coordenadas en el plano de la imagen
+    float imagePlaneX = ndc.x * aspectRatio * tan(fov / 2.0);
+    float imagePlaneY = ndc.y * tan(fov / 2.0);
+
     Ray ray;
-    ray.origin = vec3(xy.x, xy.y, 0.0);
-    ray.direction = vec3(0.0, 0.0, -1.0);
+    ray.origin = cameraPos;
+    ray.direction = normalize(imagePlaneX * right + imagePlaneY * up + forward);
 
     HitInfo hitInfo;
+    hitInfo.dist = 999999;
+
     vec3 color = vec3(0.0);
 
     // Check intersection with mesh
@@ -174,18 +197,47 @@ void main() {
         triangle.v2 = (modelMatrix * vec4(vertices[indices[i + 1]].pos, 1.0)).xyz;
         triangle.v3 = (modelMatrix * vec4(vertices[indices[i + 2]].pos, 1.0)).xyz;
 
-        vec3 c1 = vertices[indices[i]].color;
-        vec3 c2 = vertices[indices[i + 1]].color;
-        vec3 c3 = vertices[indices[i + 2]].color;
+        HitInfo currentHitInfo = intersectionTriangle(ray, triangle);
 
-        hitInfo = intersectionTriangle(ray, triangle);
-        vec3 barycentricCoords = barycentric(hitInfo.intersection, triangle);
+        if(currentHitInfo.hit && currentHitInfo.dist < hitInfo.dist) {
 
-        // Color interpolation -> same with textures
-        vec3 colorInterpolation = barycentricCoords.x * c1 + barycentricCoords.y * c2 + barycentricCoords.z * c3;
+            vec3 barycentricCoords = barycentric(currentHitInfo.intersection, triangle);
 
-        if(hitInfo.hit) {
-            color = colorInterpolation;
+            // Color interpolation -> same with textures
+            vec3 c1 = vertices[indices[i]].color;
+            vec3 c2 = vertices[indices[i + 1]].color;
+            vec3 c3 = vertices[indices[i + 2]].color;
+            vec3 colorInterpolation = barycentricCoords.x * c1 + barycentricCoords.y * c2 + barycentricCoords.z * c3;
+
+            // Normal interpolation
+            vec3 normal1 = vertices[indices[i]].normal;
+            vec3 normal2 = vertices[indices[i + 1]].normal;
+            vec3 normal3 = vertices[indices[i + 2]].normal;
+            vec3 normalInterpolation = barycentricCoords.x * normal1 + barycentricCoords.y * normal2 + barycentricCoords.z * normal3;
+
+            // UVs interpolation
+            vec2 uv1 = vertices[indices[i]].uv;
+            vec2 uv2 = vertices[indices[i + 1]].uv;
+            vec2 uv3 = vertices[indices[i + 2]].uv;
+            vec2 uvInterpolation = barycentricCoords.x * uv1 + barycentricCoords.y * uv2 + barycentricCoords.z * uv3;
+
+            // Tan interpolation
+            vec3 tan1 = vertices[indices[i]].tan;
+            vec3 tan2 = vertices[indices[i + 1]].tan;
+            vec3 tan3 = vertices[indices[i + 2]].tan;
+            vec3 tanInterpolation = barycentricCoords.x * tan1 + barycentricCoords.y * tan2 + barycentricCoords.z * tan3;
+
+            // Bitan interpolation
+            vec3 bitan1 = vertices[indices[i]].bitan;
+            vec3 bitan2 = vertices[indices[i + 1]].bitan;
+            vec3 bitan3 = vertices[indices[i + 2]].bitan;
+            vec3 bitanInterpolation = barycentricCoords.x * bitan1 + barycentricCoords.y * bitan2 + barycentricCoords.z * bitan3;
+
+            if(currentHitInfo.hit) {
+                color = colorInterpolation;
+            }
+
+            hitInfo = currentHitInfo;
         }
     }
 

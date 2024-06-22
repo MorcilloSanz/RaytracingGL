@@ -28,11 +28,11 @@ using namespace rgl;
 using namespace tinygltf;
 
 // settings
-const unsigned int SCR_WIDTH = 600;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 500;
+const unsigned int SCR_HEIGHT = 500;
 
 // texture size
-const unsigned int TEXTURE_WIDTH = 1000, TEXTURE_HEIGHT = 1000;
+const unsigned int TEXTURE_WIDTH = 500, TEXTURE_HEIGHT = 500;
 
 // timing 
 float deltaTime = 0.0f, lastFrame = 0.0f;
@@ -135,8 +135,9 @@ int main(int argc, char* argv[]) {
 	};
 
 	glm::mat4 modelMatrix(1.f);
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.75f));
-
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(60.f), glm::vec3(1.f, 1.f, 0.f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(0.35f));
+	
 	/*
 	std::vector<Vertex> meshVertices;
 	std::vector<unsigned int> meshIndices;
@@ -144,7 +145,6 @@ int main(int argc, char* argv[]) {
 	loadModel("/home/morcillosanz/Documents/GitHub/glTF-Sample-Models/2.0/Cube/glTF/Cube.gltf", meshVertices, meshIndices);
 
 	for(auto& vertex : meshVertices) {
-		vertex.pos = vertex.pos * glm::vec3(0.5) + glm::vec3(0.0, 0.0, -2.0);
 		std::cout << vertex << std::endl;
 	}
 	*/
@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
 		// Compute Shader
 		computeShaderProgram->useProgram();
 		computeShaderProgram->uniformFloat("t", currentFrame);
-		glDispatchCompute((unsigned int)TEXTURE_WIDTH/10, (unsigned int)TEXTURE_HEIGHT/10, 1);
+		glDispatchCompute((unsigned int)TEXTURE_WIDTH / 10, (unsigned int)TEXTURE_HEIGHT / 10, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 		// render image to quad
