@@ -14,7 +14,7 @@ layout (local_size_x = 10, local_size_y = 10, local_size_z = 1) in;
 //
 // ----------------------------------------------------------------------------
 
-layout(rgba32f, binding = 0) uniform image2D imgOutput;
+layout(binding = 0, rgba32f) uniform image2D imgOutput;
 
 // ----------------------------------------------------------------------------
 //
@@ -42,7 +42,9 @@ layout(std430, binding = 1) buffer IndexBuffer {
 layout (location = 0) uniform float t;
 layout (location = 1) uniform int numVertices;
 layout (location = 2) uniform int numIndices;
-layout (location = 3) uniform mat4 modelMatrix;
+
+uniform mat4 modelMatrix;
+uniform sampler2D albedo;
 
 // ----------------------------------------------------------------------------
 //
@@ -214,7 +216,7 @@ void main() {
             vec3 normal1 = vertices[indices[i]].normal;
             vec3 normal2 = vertices[indices[i + 1]].normal;
             vec3 normal3 = vertices[indices[i + 2]].normal;
-            vec3 normalInterpolation = barycentricCoords.x * normal1 + barycentricCoords.y * normal2 + barycentricCoords.z * normal3;
+            vec3 normalInterpolation = normalize(barycentricCoords.x * normal1 + barycentricCoords.y * normal2 + barycentricCoords.z * normal3);
 
             // UVs interpolation
             vec2 uv1 = vertices[indices[i]].uv;
@@ -239,7 +241,8 @@ void main() {
             hitInfo = currentHitInfo;
 
             // Update color
-            color = colorInterpolation * dot(hitInfo.normal, ray.direction);
+            //color = colorInterpolation * dot(hitInfo.normal, ray.direction);
+            color = colorInterpolation * texture(albedo, uvInterpolation).rgb * dot(hitInfo.normal, ray.direction);
         }
     }
 

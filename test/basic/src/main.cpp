@@ -38,6 +38,7 @@ const unsigned int TEXTURE_WIDTH = 500, TEXTURE_HEIGHT = 500;
 float deltaTime = 0.0f, lastFrame = 0.0f;
 
 GLuint createOutputTexture(int width, int height);
+GLuint loadTexture(const char* filename, int& width, int& height, int slot=0);
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
@@ -102,7 +103,7 @@ int main(int argc, char* argv[]) {
 	unsigned int texture = createOutputTexture(TEXTURE_WIDTH, TEXTURE_HEIGHT);
 
 	shaderProgram->useProgram();
-	shaderProgram->uniformInt("tex", texture - 1);
+	shaderProgram->uniformInt("tex", 0);
 
 	// Screen quad
 	std::vector<Vertex> quadVertices = {
@@ -116,6 +117,7 @@ int main(int argc, char* argv[]) {
 	VertexBuffer::Ptr vertexBuffer = VertexBuffer::New(quadVertices);
 
 	// Scene
+	/*
 	std::vector<Vertex> meshVertices = {
 		Vertex(glm::vec3(-1.0, -1.0,  1.0), glm::vec3(0.0f, 0.0f, 1.0f)),
 		Vertex(glm::vec3( 1.0, -1.0,  1.0), glm::vec3(1.0f, 0.0f, 1.0f)),
@@ -132,6 +134,54 @@ int main(int argc, char* argv[]) {
 		2, 3, 0,  6, 2, 1,  5, 4, 7,
 		4, 0, 3,  4, 5, 1,  3, 2, 6,
 		3, 7, 4,  1, 0, 4,  6, 7, 3 
+	};
+	*/
+
+	std::vector<Vertex> meshVertices = {
+		// Front face
+		Vertex(glm::vec3(-1.0, -1.0,  1.0), glm::vec3(1.0), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0, -1.0,  1.0), glm::vec3(1.0), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0,  1.0,  1.0), glm::vec3(1.0), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(1.0f, 1.0f)),
+		Vertex(glm::vec3(-1.0,  1.0,  1.0), glm::vec3(1.0), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec2(0.0f, 1.0f)),
+
+		// Back face
+		Vertex(glm::vec3(-1.0, -1.0, -1.0), glm::vec3(1.0), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0, -1.0, -1.0), glm::vec3(1.0), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0,  1.0, -1.0), glm::vec3(1.0), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(0.0f, 1.0f)),
+		Vertex(glm::vec3(-1.0,  1.0, -1.0), glm::vec3(1.0), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec2(1.0f, 1.0f)),
+
+		// Left face
+		Vertex(glm::vec3(-1.0, -1.0, -1.0), glm::vec3(1.0), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)),
+		Vertex(glm::vec3(-1.0,  1.0, -1.0), glm::vec3(1.0), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)),
+		Vertex(glm::vec3(-1.0,  1.0,  1.0), glm::vec3(1.0), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)),
+		Vertex(glm::vec3(-1.0, -1.0,  1.0), glm::vec3(1.0), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)),
+
+		// Right face
+		Vertex(glm::vec3( 1.0, -1.0, -1.0), glm::vec3(1.0), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0,  1.0, -1.0), glm::vec3(1.0), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0,  1.0,  1.0), glm::vec3(1.0), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f)),
+		Vertex(glm::vec3( 1.0, -1.0,  1.0), glm::vec3(1.0), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec2(0.0f, 1.0f)),
+
+		// Top face
+		Vertex(glm::vec3(-1.0,  1.0, -1.0), glm::vec3(1.0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0,  1.0, -1.0), glm::vec3(1.0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0,  1.0,  1.0), glm::vec3(1.0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 1.0f)),
+		Vertex(glm::vec3(-1.0,  1.0,  1.0), glm::vec3(1.0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)),
+
+		// Bottom face
+		Vertex(glm::vec3(-1.0, -1.0, -1.0), glm::vec3(1.0), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0, -1.0, -1.0), glm::vec3(1.0), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 0.0f)),
+		Vertex(glm::vec3( 1.0, -1.0,  1.0), glm::vec3(1.0), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(1.0f, 1.0f)),
+		Vertex(glm::vec3(-1.0, -1.0,  1.0), glm::vec3(1.0), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec2(0.0f, 1.0f))
+	};
+
+	std::vector<unsigned int> meshIndices = {
+		0, 1, 2, 2, 3, 0,
+		1, 5, 6, 6, 2, 1,
+		7, 6, 5, 5, 4, 7,
+		4, 0, 3, 3, 7, 4,
+		3, 2, 6, 6, 7, 3,
+		4, 5, 1, 1, 0, 4
 	};
 
 	glm::mat4 modelMatrix(1.f);
@@ -160,6 +210,11 @@ int main(int argc, char* argv[]) {
 	computeShaderProgram->uniformInt("numIndices", meshIndices.size());
 	computeShaderProgram->uniformMat4("modelMatrix", modelMatrix);
 
+	// Texture
+	int width, height;
+	unsigned int albedoTexture;
+	loadTexture("/home/morcillosanz/Desktop/texture.png", width, height, 1);
+
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
 
@@ -181,14 +236,24 @@ int main(int argc, char* argv[]) {
 
 		// Compute Shader
 		computeShaderProgram->useProgram();
+
 		computeShaderProgram->uniformFloat("t", currentFrame);
 		computeShaderProgram->uniformMat4("modelMatrix", modelMatrix);
+
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, albedoTexture);
+		computeShaderProgram->uniformInt("albedo", 1);
+
 		glDispatchCompute((unsigned int)TEXTURE_WIDTH / 10, (unsigned int)TEXTURE_HEIGHT / 10, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 		// render image to quad
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shaderProgram->useProgram();
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		shaderProgram->uniformInt("tex", 0);
 
 		vertexArray->bind();
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -222,6 +287,42 @@ GLuint createOutputTexture(int width, int height) {
 	glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
 	return texture;
+}
+
+GLuint loadTexture(const char* filename, int& width, int& height, int slot) {
+
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+	glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    // Configuración de opciones de carga de la textura
+    stbi_set_flip_vertically_on_load(true); // Flip verticalmente la textura al cargarla
+
+    // Cargar imagen
+    int channels;
+    unsigned char* image = stbi_load(filename, &width, &height, &channels, STBI_rgb_alpha);
+    if (image)
+    {
+        // Transferir imagen a la textura
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+
+        // Configurar opciones de la textura
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        // Liberar la imagen cargada
+        stbi_image_free(image);
+    }
+    else
+    {
+        // Manejar error si la carga de la imagen falla
+        std::cerr << "Error al cargar la textura: " << filename << std::endl;
+    }
+
+    return textureID;
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
