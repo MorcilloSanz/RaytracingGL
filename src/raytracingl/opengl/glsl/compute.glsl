@@ -14,7 +14,7 @@ layout (local_size_x = 10, local_size_y = 10, local_size_z = 1) in;
 //
 // ----------------------------------------------------------------------------
 
-layout(rgba32f, binding = 0) uniform image2D imgOutput;
+layout(binding = 0, rgba32f) uniform image2D imgOutput;
 
 // ----------------------------------------------------------------------------
 //
@@ -42,13 +42,18 @@ layout(std430, binding = 1) buffer IndexBuffer {
 layout (location = 0) uniform float t;
 layout (location = 1) uniform int numVertices;
 layout (location = 2) uniform int numIndices;
-layout (location = 3) uniform mat4 modelMatrix;
+
+uniform mat4 modelMatrix;
+uniform sampler2D albedo;
+uniform sampler2D sky;
 
 // ----------------------------------------------------------------------------
 //
 // Functions
 //
 // ----------------------------------------------------------------------------
+
+# define PI 3.14159265358979323846 
 
 struct Ray {
     vec3 origin;
@@ -103,6 +108,7 @@ HitInfo intersectionTriangle(Ray ray, Triangle triangle) {
     if (t > epsilon) {
         hitInfo.intersection = vec3(ray.origin + ray.direction * t);
         hitInfo.dist = t;
+        hitInfo.normal = normalize(cross(edge2, edge1));
         hitInfo.hit = true;
     }
 
@@ -188,6 +194,7 @@ void main() {
     hitInfo.dist = 999999;
 
     vec3 color = vec3(0.0);
+    bool intersects = false;
 
     // Check intersection with mesh
     for(int i = 0; i < numIndices; i += 3) {
@@ -201,6 +208,7 @@ void main() {
 
         if(currentHitInfo.hit && currentHitInfo.dist < hitInfo.dist) {
 
+            intersects = true;
             vec3 barycentricCoords = barycentric(currentHitInfo.intersection, triangle);
 
             // Color interpolation -> same with textures
@@ -213,7 +221,7 @@ void main() {
             vec3 normal1 = vertices[indices[i]].normal;
             vec3 normal2 = vertices[indices[i + 1]].normal;
             vec3 normal3 = vertices[indices[i + 2]].normal;
-            vec3 normalInterpolation = barycentricCoords.x * normal1 + barycentricCoords.y * normal2 + barycentricCoords.z * normal3;
+            vec3 normalInterpolation = normalize(barycentricCoords.x * normal1 + barycentricCoords.y * normal2 + barycentricCoords.z * normal3);
 
             // UVs interpolation
             vec2 uv1 = vertices[indices[i]].uv;
@@ -233,12 +241,32 @@ void main() {
             vec3 bitan3 = vertices[indices[i + 2]].bitan;
             vec3 bitanInterpolation = barycentricCoords.x * bitan1 + barycentricCoords.y * bitan2 + barycentricCoords.z * bitan3;
 
-            if(currentHitInfo.hit) {
-                color = colorInterpolation;
-            }
-
+            // Update hitInfo
+            //currentHitInfo.normal = normalInterpolation; // If the vertices have normals
             hitInfo = currentHitInfo;
+
+            // Update color
+            //color = colorInterpolation * dot(hitInfo.normal, ray.direction);
+            color = colorInterpolation * texture(albedo, uvInterpolation).rgb * dot(hitInfo.normal, ray.direction);
         }
+    }
+
+    // Sky
+    if(!intersects) {
+
+        // Normalizar la dirección del rayo (asegurándote de que es un vector unitario)
+        vec3 rayDirection = normalize(ray.direction);
+
+        // Calcular las coordenadas esféricas de la dirección del rayo
+        float theta = acos(rayDirection.y);                 // Ángulo polar (elevación)
+        float phi = 2 * atan(rayDirection.z, rayDirection.x); // Ángulo azimutal
+
+        // Convertir los ángulos a coordenadas UV (en el rango [0, 1])
+        float u = phi / (2 * PI);
+        float v = 1.0 - (theta / PI);
+
+        // Obtener el color de la skybox desde la imagen 360 en (pixel_x, pixel_y)
+        color = texture(sky, vec2(u, v)).rgb;
     }
 
     // Check intersection with sphere
