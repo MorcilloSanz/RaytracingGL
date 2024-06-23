@@ -211,9 +211,11 @@ int main(int argc, char* argv[]) {
 	computeShaderProgram->uniformMat4("modelMatrix", modelMatrix);
 
 	// Texture
-	int width, height;
-	unsigned int albedoTexture;
-	loadTexture("/home/morcillosanz/Desktop/texture.png", width, height, 1);
+	int albedoWidth, albedoHeight;
+	unsigned int albedoTexture = loadTexture("/home/morcillosanz/Desktop/cat.png", albedoWidth, albedoHeight, 1);
+
+	int skyWidth, skyHeight;
+	unsigned int sky = loadTexture("/home/morcillosanz/Desktop/sky.png", skyWidth, skyHeight, 2);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
@@ -243,6 +245,10 @@ int main(int argc, char* argv[]) {
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, albedoTexture);
 		computeShaderProgram->uniformInt("albedo", 1);
+
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, sky);
+		computeShaderProgram->uniformInt("sky", 2);
 
 		glDispatchCompute((unsigned int)TEXTURE_WIDTH / 10, (unsigned int)TEXTURE_HEIGHT / 10, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);

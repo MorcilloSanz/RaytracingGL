@@ -45,12 +45,15 @@ layout (location = 2) uniform int numIndices;
 
 uniform mat4 modelMatrix;
 uniform sampler2D albedo;
+uniform sampler2D sky;
 
 // ----------------------------------------------------------------------------
 //
 // Functions
 //
 // ----------------------------------------------------------------------------
+
+# define PI 3.14159265358979323846 
 
 struct Ray {
     vec3 origin;
@@ -191,6 +194,7 @@ void main() {
     hitInfo.dist = 999999;
 
     vec3 color = vec3(0.0);
+    bool intersects = false;
 
     // Check intersection with mesh
     for(int i = 0; i < numIndices; i += 3) {
@@ -204,6 +208,7 @@ void main() {
 
         if(currentHitInfo.hit && currentHitInfo.dist < hitInfo.dist) {
 
+            intersects = true;
             vec3 barycentricCoords = barycentric(currentHitInfo.intersection, triangle);
 
             // Color interpolation -> same with textures
@@ -244,6 +249,24 @@ void main() {
             //color = colorInterpolation * dot(hitInfo.normal, ray.direction);
             color = colorInterpolation * texture(albedo, uvInterpolation).rgb * dot(hitInfo.normal, ray.direction);
         }
+    }
+
+    // Sky
+    if(!intersects) {
+
+        // Normalizar la dirección del rayo (asegurándote de que es un vector unitario)
+        vec3 rayDirection = normalize(ray.direction);
+
+        // Calcular las coordenadas esféricas de la dirección del rayo
+        float theta = acos(rayDirection.y);                 // Ángulo polar (elevación)
+        float phi = 2 * atan(rayDirection.z, rayDirection.x); // Ángulo azimutal
+
+        // Convertir los ángulos a coordenadas UV (en el rango [0, 1])
+        float u = phi / (2 * PI);
+        float v = 1.0 - (theta / PI);
+
+        // Obtener el color de la skybox desde la imagen 360 en (pixel_x, pixel_y)
+        color = texture(sky, vec2(u, v)).rgb;
     }
 
     // Check intersection with sphere
